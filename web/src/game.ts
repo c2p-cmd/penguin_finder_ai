@@ -308,8 +308,13 @@ export class Game {
   }
 
   /** Picker contents: the in-browser models, then whatever the local Ollama server has pulled. */
-  async loadModels() {
+  /** Browser models always; Ollama models only when asked (opening Agentic mode, or an ollama: player), so a page load never probes localhost. */
+  async loadModels(withOllama = this.player.startsWith('ollama:')) {
     const browser: ModelOption[] = BROWSER_SPECS.map((m) => ({ id: m.id, label: m.label, group: 'browser', spec: m }));
+    if (!withOllama) {
+      this.models = browser;
+      return;
+    }
     try {
       const ids = await ollamaModelIds();
       const local: ModelOption[] = ids.map((id) => {
@@ -359,7 +364,11 @@ export class Game {
       });
       if (this.player === id) this.aiStatus = `${backend.spec.label} is ready · ${backend.runtime}`;
     } catch (e) {
-      this.aiError = `${backend.spec.label} failed to load: ${(e as Error).message}`;
+      const msg = (e as Error).message;
+      const stale = /dynamically imported module|importing a module script failed/i.test(msg);
+      this.aiError = stale
+        ? `${backend.spec.label} couldn't load because the site was updated while this tab was open. Reload the page to get the new version.`
+        : `${backend.spec.label} failed to load: ${msg}`;
       this.aiStatus = this.aiError;
     } finally {
       this.aiLoading = false;

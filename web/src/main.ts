@@ -24,6 +24,18 @@ async function ensureIsolation(): Promise<boolean> {
   }
 }
 
+// A redeploy replaces hashed chunk files, so a tab (or cached index.html) from the previous build can 404 on a
+// lazy import. Reload once to pick up the new build instead of leaving a dead feature.
+window.addEventListener('vite:preloadError', (e) => {
+  try {
+    if (sessionStorage.getItem('sf_chunk_reload')) return;
+    sessionStorage.setItem('sf_chunk_reload', '1');
+  } catch { /* storage blocked: fall through to the in-page message */ return; }
+  e.preventDefault();
+  location.reload();
+});
+setTimeout(() => { try { sessionStorage.removeItem('sf_chunk_reload'); } catch { /* ignore */ } }, 15_000);
+
 async function main() {
   if (await ensureIsolation()) return;
   const params = new URLSearchParams(location.search);
@@ -38,16 +50,53 @@ async function main() {
   const game = new Game(assetBase);
   const hud = new Hud(game);
 
-  // The landing page is static content: show it first, while the engine (three.js, WebGPU) loads behind it.
+  // The landing page is static content, so it is interactive immediately. The engine (three.js, WebGPU, the level)
+  // loads only when someone presses Play (or opens a ?play=/?level=/?player= link), which keeps first load light.
   const intro = new Intro(document.getElementById('intro')!, await loadBenchmark());
-  intro.setEngine('loading');
-  intro.onPlay = ({ mode, model }) => {
+  let renderer: Renderer | null = null;
+  let engine: Promise<boolean> | null = null;
+  const startEngine = (lvl: number, pl: string) => (engine ??= (async () => {
+    try {
+      const { Renderer: R } = await import('./render');
+      renderer = new R(canvas, game, assetBase);
+      await renderer.init();
+      await game.start(lvl, pl);
+    } catch (e) {
+      console.error(e);
+      const msg = `Couldn't start the renderer: ${(e as Error).message}`;
+      intro.setEngine('error', msg);
+      const box = document.getElementById('fatal')!;
+      box.hidden = false;
+      box.textContent = msg;
+      return false;
+    }
+    if (import.meta.env.DEV) (window as any).__backend = backendFor; // console experiments with prompt formats
+    // While the intro is open the world is frozen, so redraw only occasionally and keep the GPU free.
+    let lastIdle = 0;
+    const loop = (t: number) => {
+      if (!game.paused || t - lastIdle > 400) {
+        renderer!.frame();
+        lastIdle = t;
+      }
+      hud.update(renderer!.framesPerSecond, renderer!.backend);
+      requestAnimationFrame(loop);
+    };
+    requestAnimationFrame(loop);
+    return true;
+  })());
+
+  intro.onIntent = () => void import('./render'); // warm the engine chunk when someone hovers Play
+  intro.onPlay = async ({ mode, model }) => {
+    intro.setEngine('loading');
+    const ok = await startEngine(0, '');
+    if (!ok) return;
+    intro.setEngine('ready');
     intro.setResumable(false);
     intro.hide();
     game.paused = false;
     void game.newRun(mode === 'agentic' ? model : '');
   };
-  intro.onOllamaChange = () => void game.loadModels();
+  intro.onOllamaChange = () => void game.loadModels(true);
   intro.onResume = () => {
     intro.hide();
     game.paused = false;
@@ -62,40 +111,11 @@ async function main() {
   window.addEventListener('keydown', (e) => {
     if (e.code === 'Escape' && intro.canResume && document.body.classList.contains('intro-open')) intro.onResume();
   });
-  game.paused = !direct; // the level-1 scene stays visible, frozen, behind the intro
+
+  game.paused = !direct;
   if (direct) intro.hide(); else intro.show();
   await intro.render();
-
-  let renderer: Renderer;
-  try {
-    const { Renderer: R } = await import('./render');
-    renderer = new R(canvas, game, assetBase);
-    await renderer.init();
-  } catch (e) {
-    console.error(e);
-    const msg = `Couldn't start the renderer: ${(e as Error).message}`;
-    intro.setEngine('error', msg);
-    const box = document.getElementById('fatal')!;
-    box.hidden = false;
-    box.textContent = msg;
-    return;
-  }
-  await game.start(level, direct ? player : '');
-  intro.setEngine('ready');
-
-  if (import.meta.env.DEV) (window as any).__backend = backendFor; // console experiments with prompt formats
-
-  // While the intro is open the world is frozen, so redraw only occasionally and keep the GPU free.
-  let lastIdle = 0;
-  const loop = (t: number) => {
-    if (!game.paused || t - lastIdle > 400) {
-      renderer.frame();
-      lastIdle = t;
-    }
-    hud.update(renderer.framesPerSecond, renderer.backend);
-    requestAnimationFrame(loop);
-  };
-  requestAnimationFrame(loop);
+  if (direct) await startEngine(level, player);
 }
 
 void main();

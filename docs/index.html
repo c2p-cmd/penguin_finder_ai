@@ -14,12 +14,15 @@
     <meta property="og:title" content="Squirrel Finder: a zero-person game played by System One models" />
     <meta property="og:description" content="A zero-person arcade game: tiny System One models dodge ghosts and chase a penguin, in your browser or on Ollama. Play it yourself, or see how they score." />
     <meta property="og:url" content="https://c2p-cmd.github.io/penguin_finder_ai/" />
-    <meta property="og:image" content="https://c2p-cmd.github.io/penguin_finder_ai/android-chrome-512x512.png" />
-    <meta property="og:image:alt" content="A black and white penguin icon" />
-    <meta name="twitter:card" content="summary" />
+    <meta property="og:image" content="https://c2p-cmd.github.io/penguin_finder_ai/og-image.jpg" />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Squirrel Finder: a wizard in a moonlit graveyard dodging ghosts to reach a penguin" />
+    <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Squirrel Finder: a zero-person game played by System One models" />
     <meta name="twitter:description" content="A zero-person arcade game: tiny System One models dodge ghosts and chase a penguin, in your browser or on Ollama. Play it yourself, or see how they score." />
-    <meta name="twitter:image" content="https://c2p-cmd.github.io/penguin_finder_ai/android-chrome-512x512.png" />
+    <meta name="twitter:image" content="https://c2p-cmd.github.io/penguin_finder_ai/og-image.jpg" />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -27,7 +30,7 @@
         "name": "Squirrel Finder",
         "description": "A zero-person arcade game: tiny System One models dodge ghosts and chase a penguin, in your browser or on Ollama. Play it yourself, or see how they score.",
         "url": "https://c2p-cmd.github.io/penguin_finder_ai/",
-        "image": "https://c2p-cmd.github.io/penguin_finder_ai/android-chrome-512x512.png",
+        "image": "https://c2p-cmd.github.io/penguin_finder_ai/og-image.jpg",
         "genre": "Arcade",
         "gamePlatform": "Web browser (WebGPU)",
         "applicationCategory": "Game",
@@ -42,8 +45,8 @@
     <link rel="icon" type="image/png" sizes="16x16" href="./favicon-16x16.png" />
     <link rel="icon" href="./favicon.ico" sizes="any" />
     <link rel="manifest" href="./site.webmanifest" />
-    <script type="module" crossorigin src="./assets/index-BOyUkv0n.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-2K40JZYa.css">
+    <script type="module" crossorigin src="./assets/index-DrM9v-_S.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-BKXvOrM0.css">
   </head>
   <body class="intro-open">
     <canvas id="view" role="img" aria-label="Squirrel Finder game view: a wizard dodges ghosts to reach a penguin"></canvas>
@@ -51,9 +54,9 @@
     <div id="intro">
       <!-- Static copy for crawlers and first paint; src/intro.ts replaces it with the interactive page (keep the wording in sync). -->
       <header class="hero">
-        <p class="eyebrow">A small research experiment</p>
+        <p class="eyebrow">A zero-player game · a small research experiment</p>
         <h1>Squirrel Finder</h1>
-        <p class="lede">Can a tiny decision model that runs entirely inside your browser play a video game?</p>
+        <p class="lede">Can a tiny decision model that runs entirely inside your browser play a video game? Here, AI plays the game with WebGPU, no server needed.</p>
         <div class="cta-row">
           <a class="btn primary" href="#play">Play now</a>
           <a class="btn" href="#compare">See the model comparison</a>
@@ -63,6 +66,7 @@
         <h2>What is this?</h2>
         <p>A night-time arcade game. A wizard walks a haunted graveyard and then six dungeon rooms, dodging drifting ghosts and trying to reach a penguin before they catch him. Seven levels, a score with near-miss bonuses, and a lantern that lights the way.</p>
         <p>You can play it with the keyboard, or hand the controls to a <strong>System One</strong> model: a small network that is shown a short description of the scene plus eight possible directions, scores each option in <em>one forward pass</em>, and the game takes the winner. Nothing is generated token by token; the model can only choose from the options we give it.</p>
+        <p>Models you can watch play: <strong>Laya</strong> (typed decisions, via layaForWeb), <strong>Julia-1</strong>, <strong>Kev-0.6B browser-use</strong> and <strong>Decision Lab V3</strong> run in your browser with ONNX Runtime Web or Transformers.js, and any decision model you serve with <strong>Ollama</strong> (<code>/v1/systemone</code>) can play too.</p>
       </section>
       <section class="block" id="why">
         <h2>Why create this?</h2>

@@ -178,7 +178,10 @@ export class Intro {
   private playBtn!: HTMLButtonElement;
   private modelHost!: HTMLElement;
   private plotToken = 0;
-  private engine: 'loading' | 'ready' | 'error' = 'loading';
+  private engine: 'idle' | 'loading' | 'ready' | 'error' = 'idle';
+  private pickerReady = false;
+  /** Pointer hovered or focused Play: a chance to warm up the engine download. */
+  onIntent: () => void = () => {};
   private engineMsg = '';
   private engineNote!: HTMLElement;
   private plotWatch: IntersectionObserver | null = null;
@@ -187,7 +190,7 @@ export class Intro {
   private heroPlay!: HTMLAnchorElement;
   private newRunNote!: HTMLElement;
   private resumable = false;
-  onPlay: (c: PlayChoice) => void = () => {};
+  onPlay: (c: PlayChoice) => void | Promise<void> = () => {};
   onResume: () => void = () => {};
   /** The Ollama server URL changed: refresh anything that lists its models. */
   onOllamaChange: () => void = () => {};
@@ -196,12 +199,12 @@ export class Intro {
   get canResume() { return this.resumable; }
 
   /** The game engine loads behind the page; Play stays disabled until it is ready. */
-  setEngine(state: 'loading' | 'ready' | 'error', msg = '') {
+  setEngine(state: 'idle' | 'loading' | 'ready' | 'error', msg = '') {
     this.engine = state;
     this.engineMsg = msg;
     if (this.engineNote) {
-      this.engineNote.hidden = state === 'ready';
-      this.engineNote.textContent = state === 'error' ? msg : 'Loading the game engine…';
+      this.engineNote.hidden = state === 'ready' || state === 'idle';
+      this.engineNote.textContent = state === 'error' ? msg : 'Loading the game…';
     }
     this.updatePlay();
   }
@@ -233,9 +236,9 @@ export class Intro {
     this.setResumable(this.resumable);
     r.append(
       h('header', { class: 'hero' },
-        h('p', { class: 'eyebrow', text: 'A small research experiment' }),
+        h('p', { class: 'eyebrow', text: 'A zero-player game · a small research experiment' }),
         h('h1', { text: 'Squirrel Finder' }),
-        h('p', { class: 'lede', text: 'Can a tiny decision model that runs entirely inside your browser play a video game?' }),
+        h('p', { class: 'lede', text: 'Can a tiny decision model that runs entirely inside your browser play a video game? Here, AI plays the game with WebGPU, no server needed.' }),
         h('div', { class: 'cta-row' },
           this.resumeBtn,
           this.heroPlay,
@@ -253,6 +256,8 @@ export class Intro {
             html: 'You can play it with the keyboard, or hand the controls to a <strong>System One</strong> model: a small network that is shown a short ' +
               'description of the scene plus eight possible directions, scores each option in <em>one forward pass</em>, and the game takes the winner. ' +
               'Nothing is generated token by token; the model can only choose from the options we give it.',
+          }), h('p', {
+            html: 'Models you can watch play: <strong>Laya</strong> (typed decisions, via layaForWeb), <strong>Julia-1</strong>, <strong>Kev-0.6B browser-use</strong> and <strong>Decision Lab V3</strong> run in your browser with ONNX Runtime Web or Transformers.js, and any decision model you serve with <strong>Ollama</strong> (<code>/v1/systemone</code>) can play too.',
           })),
           h('div', { class: 'aside panel' },
             h('h3', { text: 'One typed decision' }),
@@ -623,6 +628,12 @@ export class Intro {
       agent.setAttribute('aria-pressed', String(m === 'agentic'));
       this.modelHost.hidden = m === 'human';
       this.serverHost.hidden = m === 'human';
+      if (m === 'agentic' && !this.pickerReady) {
+        // only now look for Ollama and hosted weights: nothing probes localhost or /models on page load
+        this.pickerReady = true;
+        this.onOllamaChange();
+        void this.fillModelPicker();
+      }
       this.updatePlay();
     };
     human.addEventListener('click', () => setMode('human'));
@@ -634,11 +645,11 @@ export class Intro {
     this.newRunNote = h('p', { class: 'muted small note', text: 'Starting a new run replaces the one in progress.' });
     this.newRunNote.hidden = !this.resumable;
     this.engineNote = h('p', { class: 'muted small note', attrs: { role: 'status' } });
-    this.engineNote.hidden = this.engine === 'ready';
-    this.engineNote.textContent = this.engine === 'error' ? this.engineMsg : 'Loading the game engine…';
+    this.engineNote.hidden = this.engine === 'ready' || this.engine === 'idle';
+    this.engineNote.textContent = this.engine === 'error' ? this.engineMsg : 'Loading the game…';
     sec.append(modes, this.serverHost, this.modelHost, h('div', { class: 'cta-row' }, this.playBtn), this.engineNote, this.newRunNote);
-    // checking which weights are reachable takes a few requests: don't hold the page for it
-    void this.fillModelPicker();
+    this.playBtn.addEventListener('pointerenter', () => this.onIntent());
+    this.playBtn.addEventListener('focus', () => this.onIntent());
     return sec;
   }
 
@@ -733,7 +744,7 @@ export class Intro {
 
   private updatePlay() {
     if (!this.playBtn) return;
-    const ready = this.engine === 'ready';
+    const ready = this.engine !== 'loading';
     if (this.mode === 'human') {
       this.playBtn.textContent = 'Play as human';
       this.playBtn.disabled = !ready;
