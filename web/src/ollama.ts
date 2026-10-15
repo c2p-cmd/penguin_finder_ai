@@ -48,7 +48,7 @@ async function send<T>(url: string, init?: RequestInit, timeoutMs = 90_000): Pro
   try {
     res = await fetch(url, { ...init, signal: ctl.signal });
   } catch {
-    throw new Error(`Ollama isn't reachable at ${base()} (is it running, and does OLLAMA_ORIGINS allow this page?)`);
+    throw new Error(`Ollama isn't reachable at ${base()}. Is it running, and does OLLAMA_ORIGINS include ${location.origin}?`);
   } finally {
     clearTimeout(timer);
   }

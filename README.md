@@ -34,7 +34,7 @@ allowed by default, so `pnpm dev` and `pnpm preview` just work. For a deployed s
 first (and note browsers may block an `https` page from reaching a plain-http local server):
 
 ```bash
-OLLAMA_ORIGINS="https://<you>.github.io" ollama serve
+OLLAMA_ORIGINS="https://c2p-cmd.github.io" ollama serve
 ```
 
 Point the page at another server from the **Ollama server** field in Agentic mode (Connect / Reset), or with `?ollama=http://host:11434`. The choice is remembered in `localStorage`.

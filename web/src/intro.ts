@@ -693,13 +693,23 @@ export class Intro {
     reset.addEventListener('click', () => void apply(null));
     input.addEventListener('keydown', (e) => { if (e.key === 'Enter') void apply(input.value); });
 
-    return h('div', { class: 'server panel' },
+    const block = h('div', { class: 'server panel' },
       h('label', { class: 'server-label', attrs: { for: 'ollama-url' } }, h('strong', { text: 'Ollama server' }),
         h('span', { class: 'muted small', text: ' · optional, for models you run yourself' })),
       h('div', { class: 'server-row' }, input, save, reset),
       status,
-      h('p', { class: 'muted small', text: 'Ollama must allow this site: start it with OLLAMA_ORIGINS set to this page’s address. localhost and 127.0.0.1 are allowed by default.' }),
+      h('details', { class: 'muted small server-help' },
+        h('summary', { text: 'Not connecting? Ollama has to allow this site' }),
+        h('p', { text: `This page’s origin is ${location.origin}. Ollama only accepts pages from localhost unless you allow the origin:` }),
+        h('p', { html: `<strong>Terminal:</strong> <code></code>` }),
+        h('p', { html: `<strong>Ollama app on macOS:</strong> <code></code>, then quit and reopen Ollama.` }),
+        h('p', { text: 'If your browser asks to access devices on your local network, choose Allow. Safari may block a plain http:// server from an HTTPS page; Chrome and Edge allow localhost.' }),
+      ),
     );
+    const codes = block.querySelectorAll('code');
+    codes[0].textContent = `OLLAMA_ORIGINS="${location.origin}" ollama serve`;
+    codes[1].textContent = `launchctl setenv OLLAMA_ORIGINS "${location.origin}"`;
+    return block;
   }
 
   private async fillModelPicker() {
