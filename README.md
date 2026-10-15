@@ -154,5 +154,4 @@ The art comes from these sources (all credited on the site):
 - Penguin: generated with AI by the author.
 
 Raw source copies in `macos/Assets` are git-ignored except the rooms and the penguin, so a fresh clone needs
-its own copy of the other sprites there.
-# penguin_finder_ai
+its own copy of the other sprites there
