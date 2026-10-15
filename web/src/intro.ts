@@ -3,6 +3,7 @@
  * and the play buttons (human or agentic).
  */
 import { BROWSER_SPECS, ollamaModelIds, specFor } from './models/backends';
+import { ollamaBase, ollamaDefaultBase, setOllamaBase } from './ollama';
 import type { ModelSpec } from './models/types';
 
 type Cat = 'goal' | 'threat' | 'evade' | 'calm';
@@ -188,6 +189,9 @@ export class Intro {
   private resumable = false;
   onPlay: (c: PlayChoice) => void = () => {};
   onResume: () => void = () => {};
+  /** The Ollama server URL changed: refresh anything that lists its models. */
+  onOllamaChange: () => void = () => {};
+  private serverHost!: HTMLElement;
 
   get canResume() { return this.resumable; }
 
@@ -607,6 +611,8 @@ export class Intro {
     modes.append(human, agent);
     this.modelHost = h('div', { class: 'model-pick', hidden: true } as never);
     this.modelHost.hidden = true;
+    this.serverHost = this.serverBlock();
+    this.serverHost.hidden = true;
     this.playBtn = h('button', { class: 'btn primary big', text: 'Play as human', attrs: { type: 'button' } });
 
     const setMode = (m: 'human' | 'agentic') => {
@@ -616,6 +622,7 @@ export class Intro {
       human.setAttribute('aria-pressed', String(m === 'human'));
       agent.setAttribute('aria-pressed', String(m === 'agentic'));
       this.modelHost.hidden = m === 'human';
+      this.serverHost.hidden = m === 'human';
       this.updatePlay();
     };
     human.addEventListener('click', () => setMode('human'));
@@ -629,10 +636,59 @@ export class Intro {
     this.engineNote = h('p', { class: 'muted small note', attrs: { role: 'status' } });
     this.engineNote.hidden = this.engine === 'ready';
     this.engineNote.textContent = this.engine === 'error' ? this.engineMsg : 'Loading the game engine…';
-    sec.append(modes, this.modelHost, h('div', { class: 'cta-row' }, this.playBtn), this.engineNote, this.newRunNote);
+    sec.append(modes, this.serverHost, this.modelHost, h('div', { class: 'cta-row' }, this.playBtn), this.engineNote, this.newRunNote);
     // checking which weights are reachable takes a few requests: don't hold the page for it
     void this.fillModelPicker();
     return sec;
+  }
+
+  /** Ollama server field: lets visitors point the page at their own server without editing the URL. */
+  private serverBlock(): HTMLElement {
+    const input = h('input', { class: 'server-input', attrs: { type: 'url', id: 'ollama-url', placeholder: ollamaDefaultBase, autocomplete: 'off', spellcheck: 'false', inputmode: 'url' } });
+    input.value = ollamaBase();
+    const status = h('span', { class: 'muted small server-status', attrs: { role: 'status' } });
+    const save = h('button', { class: 'btn', text: 'Connect', attrs: { type: 'button' } });
+    const reset = h('button', { class: 'btn', text: 'Reset', attrs: { type: 'button' } });
+
+    const apply = async (url: string | null) => {
+      let value = url;
+      if (value !== null) {
+        value = value.trim();
+        if (!/^https?:\/\/[^\s/]+/i.test(value)) {
+          status.textContent = 'Enter a full address, e.g. http://127.0.0.1:11434';
+          return;
+        }
+        try { new URL(value); } catch { status.textContent = 'That doesn’t look like a valid address.'; return; }
+      }
+      const now = setOllamaBase(value);
+      input.value = now;
+      status.textContent = 'Connecting…';
+      save.disabled = reset.disabled = true;
+      try {
+        const ids = await ollamaModelIds();
+        status.textContent = ids.length ? `Connected · ${ids.length} model${ids.length === 1 ? '' : 's'} found` : 'Connected, but no models are pulled yet.';
+      } catch (e) {
+        const insecure = location.protocol === 'https:' && /^http:\/\//i.test(now) && !/^http:\/\/(127\.0\.0\.1|localhost|\[::1\])/i.test(now);
+        status.textContent = insecure
+          ? 'Can’t reach it: this page is HTTPS, so the browser blocks a plain http:// server unless it is localhost. Use https:// or run the page locally.'
+          : (e as Error).message;
+      } finally {
+        save.disabled = reset.disabled = false;
+      }
+      this.onOllamaChange();
+      await this.fillModelPicker();
+    };
+    save.addEventListener('click', () => void apply(input.value));
+    reset.addEventListener('click', () => void apply(null));
+    input.addEventListener('keydown', (e) => { if (e.key === 'Enter') void apply(input.value); });
+
+    return h('div', { class: 'server panel' },
+      h('label', { class: 'server-label', attrs: { for: 'ollama-url' } }, h('strong', { text: 'Ollama server' }),
+        h('span', { class: 'muted small', text: ' · optional, for models you run yourself' })),
+      h('div', { class: 'server-row' }, input, save, reset),
+      status,
+      h('p', { class: 'muted small', text: 'Ollama must allow this site: start it with OLLAMA_ORIGINS set to this page’s address. localhost and 127.0.0.1 are allowed by default.' }),
+    );
   }
 
   private async fillModelPicker() {

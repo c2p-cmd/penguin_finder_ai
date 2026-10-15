@@ -37,7 +37,7 @@ first (and note browsers may block an `https` page from reaching a plain-http lo
 OLLAMA_ORIGINS="https://<you>.github.io" ollama serve
 ```
 
-Point the page at another server with `?ollama=http://host:11434` (remembered in `localStorage`).
+Point the page at another server from the **Ollama server** field in Agentic mode (Connect / Reset), or with `?ollama=http://host:11434`. The choice is remembered in `localStorage`.
 
 ### Laya running inside the browser (no Ollama)
 

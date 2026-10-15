@@ -8,17 +8,30 @@
  */
 const DEFAULT_BASE = 'http://127.0.0.1:11434';
 
+// ?ollama=http://host:11434 is read once at startup and remembered; the intro page can change it afterwards
+try {
+  const q = new URLSearchParams(location.search).get('ollama');
+  if (q) localStorage.setItem('sf_ollama', q.replace(/\/$/, ''));
+} catch { /* ignore */ }
+
 function base(): string {
   try {
-    const q = new URLSearchParams(location.search).get('ollama');
-    if (q) {
-      localStorage.setItem('sf_ollama', q);
-      return q.replace(/\/$/, '');
-    }
     return (localStorage.getItem('sf_ollama') ?? DEFAULT_BASE).replace(/\/$/, '');
   } catch {
     return DEFAULT_BASE;
   }
+}
+
+export const ollamaDefaultBase = DEFAULT_BASE;
+export const ollamaBase = base;
+
+/** Persist a new server URL (null resets to the default). Returns the normalised URL in effect. */
+export function setOllamaBase(url: string | null): string {
+  try {
+    if (url === null) localStorage.removeItem('sf_ollama');
+    else localStorage.setItem('sf_ollama', url.replace(/\/$/, ''));
+  } catch { /* storage blocked: the change lasts only until reload via ?ollama= */ }
+  return url === null ? DEFAULT_BASE : url.replace(/\/$/, '');
 }
 
 export interface Decision {

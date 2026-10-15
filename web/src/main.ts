@@ -47,6 +47,7 @@ async function main() {
     game.paused = false;
     void game.newRun(mode === 'agentic' ? model : '');
   };
+  intro.onOllamaChange = () => void game.loadModels();
   intro.onResume = () => {
     intro.hide();
     game.paused = false;
