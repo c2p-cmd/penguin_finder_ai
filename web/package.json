@@ -1,0 +1,32 @@
+{
+  "name": "squirrel-finder-web",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Squirrel Finder, WebGPU edition: a night-time ghost-dodging game that Ollama decision models can play.",
+  "scripts": {
+    "sync-assets": "node scripts/sync-assets.mjs",
+    "predev": "node scripts/sync-assets.mjs",
+    "dev": "vite",
+    "typecheck": "tsc --noEmit",
+    "prebuild": "node scripts/sync-assets.mjs",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview --outDir ../docs",
+    "bench:merge": "node scripts/merge-benchmark.mjs"
+  },
+  "packageManager": "pnpm@11.4.0",
+  "devDependencies": {
+    "@types/three": "^0.186.0",
+    "@webgpu/types": "^0.1.74",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.4"
+  },
+  "dependencies": {
+    "@huggingface/tokenizers": "0.2.0",
+    "@huggingface/transformers": "^4.3.1",
+    "decision-lab-sdk": "https://github.com/khalilelghoul01/decision-lab/releases/download/v0.1.0/decision-lab-sdk-0.1.0.tgz",
+    "onnxruntime-web": "1.30.0",
+    "open-jev": "^0.1.2",
+    "three": "^0.186.1"
+  }
+}

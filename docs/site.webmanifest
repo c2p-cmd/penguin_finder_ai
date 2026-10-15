@@ -1,0 +1,13 @@
+{
+  "name": "Squirrel Finder",
+  "short_name": "Squirrel Finder",
+  "description": "Dodge ghosts, find the penguin. Playable by you or by a small decision model running in your browser.",
+  "icons": [
+    { "src": "./android-chrome-192x192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "./android-chrome-512x512.png", "sizes": "512x512", "type": "image/png" }
+  ],
+  "start_url": "./",
+  "theme_color": "#04060e",
+  "background_color": "#010206",
+  "display": "standalone"
+}

@@ -1,0 +1,5 @@
+# pnpm 11 build-script policy: none of the dependencies need their install scripts for the browser build.
+allowBuilds:
+  protobufjs: false
+  onnxruntime-node: false # pulled in by @huggingface/transformers; browser-only here
+  sharp: false

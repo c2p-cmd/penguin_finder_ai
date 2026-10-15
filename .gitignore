@@ -1,0 +1,36 @@
+# SwiftPM / Xcode
+.build/
+*/.build/*
+.swiftpm/xcode/xcuserdata/
+**/xcuserdata/
+**/*.xcuserstate
+DerivedData/
+
+# macOS
+.DS_Store
+
+# Node / web
+node_modules/
+*.log
+.vite/
+.env
+.env.*
+!.env.example
+
+# third-party art packs whose licences restrict redistribution stay on disk only.
+# The voxel rooms (Tiny Voxel Dungeon by Max Parata, free for any project) are published.
+docs/art/*
+!docs/art/rooms/
+# FreePixel characters ship inside the built game (allowed); the raw source copies in macos/Assets stay private
+!docs/art/wizard_idle.png
+!docs/art/wizard_walk.png
+!docs/art/ghost_walk.png
+# Dark Horror Asset Pack tiles (free with attribution; baked into ground/props/cracks) and the author's own AI-generated penguin
+!docs/art/ground.png
+!docs/art/cracks.png
+!docs/art/props.png
+!docs/art/penguin.png
+macos/Assets/*
+!macos/Assets/rooms/
+!macos/Assets/penguin.png
+web/public/art/

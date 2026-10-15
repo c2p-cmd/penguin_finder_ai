@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Squirrel Finder benchmark (dev only)</title>
+    <style>
+      body { font: 14px/1.5 ui-monospace, Menlo, monospace; background: #0b0d18; color: #dfe3f5; margin: 24px; }
+      pre { white-space: pre-wrap; }
+    </style>
+  </head>
+  <body>
+    <h1>Benchmark runner</h1>
+    <p>
+      <code>?task=scenarios</code> generates the scenario set ·
+      <code>?task=model&amp;id=laya-web&amp;variants=compact,full&amp;n=108</code> benchmarks one model.
+    </p>
+    <pre id="log">idle</pre>
+    <script type="module" src="/src/bench/main.ts"></script>
+  </body>
+</html>

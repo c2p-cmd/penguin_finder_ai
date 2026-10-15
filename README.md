@@ -135,6 +135,8 @@ asset helper scripts (prop atlas builder, voxel room previewer).
 ## Credits
 
 - Site icon: [Penguin icons created by G-CAT - Flaticon](https://www.flaticon.com/free-icons/penguin).
+- Characters (wizard, ghosts): pixel art from [FreePixel](https://freepixel.art/), free for personal and commercial use, attribution optional ([asset licence](https://freepixel.art/license/)). The licence forbids redistributing the raw asset files as assets, so only the copies inside the built game (`docs/art`) are committed.
+- Dungeon room models: [Tiny Voxel Dungeon](https://maxparata.itch.io/tinyvoxeldungeon) by **Max Parata**. The author states: "You can use it for any kind of project that you have (commercial or not): game, movies, sceneries, 3D printing etc." and asks for his name in the credits, which is why it is credited here and on the site. The room models (`docs/art/rooms`, `macos/Assets/rooms`) are included in this repository.
 - Charts: [Plotly.js](https://plotly.com/javascript/) (MIT), vendored at `web/public/vendor/plotly/` with its licence.
 - Runtime libraries: three.js (MIT), ONNX Runtime Web (MIT), Transformers.js (Apache-2.0). Licence texts are in `web/public/licenses/`.
 - Julia 1 WebGPU export by Supersonic Labs (Apache-2.0), see `web/public/licenses/julia-1-README.md`.
@@ -144,8 +146,13 @@ asset helper scripts (prop atlas builder, voxel room previewer).
 The in-browser Laya path vendors code from layaForWeb (Apache-2.0; licence and notice in
 `web/public/licenses/`) and downloads weights derived from `convaiinnovations/laya-typed-decisions` (Apache-2.0).
 
-The art comes from third-party packs supplied for this project (pixel-art wizard/ghost sheets, the
-"Dark Horror Asset pack", and MagicaVoxel room models). The Dark Horror pack's licence forbids
-redistributing the tileset, modified or not. Check each pack's terms before publishing `docs/` or the
-repository publicly; `docs/art` contains processed copies of them.
+The art comes from these sources (all credited on the site):
+
+- Characters (wizard, ghosts): [FreePixel](https://freepixel.art/), free for commercial use, attribution optional.
+- Dungeon rooms: [Tiny Voxel Dungeon](https://maxparata.itch.io/tinyvoxeldungeon) by Max Parata, free for any project.
+- Graveyard tiles and props: [Dark Horror Asset Pack 16x16](https://nonokaatm.itch.io/dark-horror-asset-pack-16x16) by nonokaatm, free to use with attribution (credited here and on the site). The pack's own page is the authority on its terms; this repo ships only the baked `ground.png`, `props.png` and `cracks.png` inside `docs/art`, not the original tileset.
+- Penguin: generated with AI by the author.
+
+Raw source copies in `macos/Assets` are git-ignored except the rooms and the penguin, so a fresh clone needs
+its own copy of the other sprites there.
 # penguin_finder_ai

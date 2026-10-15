@@ -1,0 +1,12 @@
+# Squirrel Finder
+
+> A zero-person arcade game in the browser (WebGPU), played by System One decision models. A wizard dodges ghosts to reach a penguin. You can play with the keyboard, or hand control to a small "System One" decision model that runs in the page or on a local Ollama server. The landing page benchmarks those models against a lookahead oracle.
+
+## Pages
+
+- [Game and model comparison](https://c2p-cmd.github.io/penguin_finder_ai/): play as a human or pick a model to watch; charts of how each model scores.
+
+## Notes
+
+- Playing needs a WebGPU-capable browser. The in-browser models download their weights on first use and cache them.
+- Everything runs client-side; there is no server API.

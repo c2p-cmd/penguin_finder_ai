@@ -1,0 +1,5 @@
+node_modules/
+# copied from ../macos/Assets by `pnpm sync-assets` (single source of truth for art)
+public/art/
+local-models/
+bench-results/models/

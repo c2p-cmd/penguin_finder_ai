@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://c2p-cmd.github.io/penguin_finder_ai/sitemap.xml
